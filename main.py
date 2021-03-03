@@ -7,11 +7,15 @@ import json
 from datetime import datetime
 import csv
 import sys
+import os
 
 try:
 	output_file_name = sys.argv[1]
 except IndexError:
 	output_file_name = input("Please enter the ID of this workshop session (e.g. TMS6)\n")
+
+if not os.path.isdir('finished_searches'):
+	os.makedirs('finished_searches')
 
 output_path = 'finished_searches/' + output_file_name + '_' + str(datetime.now().date()) + '.csv'
 
@@ -94,20 +98,26 @@ for i, row in enumerate(link_list_master):
 
 print(str(len(broken_links)) + " suspicious links found")
 
-print("Writing output to " + output_path)
-f = open(output_path, 'w')
-f.write('')
-f.close()
-if len(broken_links) > 0:
-	print("Building CSV")
-	if len(broken_links) > 0:
-		csv_headers = broken_links[0].keys()
-	else:
-		csv_headers = ['There were no suspicious links found.']
-	f = open(output_path,'w', encoding="utf-8")
-	writer = csv.DictWriter(f, fieldnames=csv_headers)
-	writer.writeheader()
-	writer.writerows(broken_links)
+try:
+	print("Writing output to " + output_path)
+	f = open(output_path, 'w')
+	f.write('')
 	f.close()
+	if len(broken_links) > 0:
+		print("Building CSV")
+		if len(broken_links) > 0:
+			csv_headers = broken_links[0].keys()
+		else:
+			csv_headers = ['There were no suspicious links found.']
+		f = open(output_path,'w', encoding="utf-8")
+		writer = csv.DictWriter(f, fieldnames=csv_headers)
+		writer.writeheader()
+		writer.writerows(broken_links)
+		f.close()
+except:
+	print("Write to file failed, Raw Output:")
+	print("")
+	print(broken_links)
+	print("")
 
 print("DONE")
